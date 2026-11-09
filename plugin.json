@@ -1,0 +1,23 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "blender-studio",
+  "version": "1.0.0",
+  "description": "Local Blender MCP for cinematics, anime NPR, 2D game backgrounds, licensed assets and film composition references.",
+  "author": {"name": "YZ2020CHINA"},
+  "license": "MIT",
+  "homepage": "https://github.com/YZ2020CHINA/blender-codex",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Blender 影视与动漫场景工作室",
+        "shortDescription": "影视运镜、三渲二、游戏背景与授权素材检索",
+        "longDescription": "连接本机 Blender，构建室内外场景、灯光、天气与镜头动画，输出动漫背景、透明图层和胶片风格画面。支持 CC0 素材和 PLATEAU 城市分块，以及 Fab 与经典电影参考检索入口。",
+        "developerName": "YZ2020CHINA",
+        "category": "Creativity",
+        "capabilities": ["Read", "Write"],
+        "brandColor": "#E87D32",
+        "defaultPrompt": ["用 Blender 搭建一个黄昏室内动漫场景，设计三秒推镜头，先输出低分辨率预览。"]
+      }
+    }
+  }
+}

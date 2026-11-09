@@ -1,0 +1,223 @@
+{
+  "checked_on": "2026-11-09",
+  "query": "blender mcp",
+  "source": "GitHub repository search API",
+  "results": [
+    {
+      "full_name": "ahujasid/mcp-for-blender",
+      "html_url": "https://github.com/ahujasid/mcp-for-blender",
+      "stargazers_count": 33712,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "scenario-labs/skills",
+      "html_url": "https://github.com/scenario-labs/skills",
+      "stargazers_count": 3567,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "arjun988/blender-skills",
+      "html_url": "https://github.com/arjun988/blender-skills",
+      "stargazers_count": 2280,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "scenario-labs/blender-plugin",
+      "html_url": "https://github.com/scenario-labs/blender-plugin",
+      "stargazers_count": 965,
+      "license": {
+        "key": "gpl-3.0",
+        "name": "GNU General Public License v3.0",
+        "spdx_id": "GPL-3.0",
+        "url": "https://api.github.com/licenses/gpl-3.0",
+        "node_id": "MDc6TGljZW5zZTk="
+      }
+    },
+    {
+      "full_name": "squall01337/mixamo-llm-mocap",
+      "html_url": "https://github.com/squall01337/mixamo-llm-mocap",
+      "stargazers_count": 436,
+      "license": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      }
+    },
+    {
+      "full_name": "Moo-Ack-Productions/MCprep",
+      "html_url": "https://github.com/Moo-Ack-Productions/MCprep",
+      "stargazers_count": 389,
+      "license": {
+        "key": "gpl-3.0",
+        "name": "GNU General Public License v3.0",
+        "spdx_id": "GPL-3.0",
+        "url": "https://api.github.com/licenses/gpl-3.0",
+        "node_id": "MDc6TGljZW5zZTk="
+      }
+    },
+    {
+      "full_name": "Evolink-AI/Awesome-Blender-Seedance-Workflow-Usecases",
+      "html_url": "https://github.com/Evolink-AI/Awesome-Blender-Seedance-Workflow-Usecases",
+      "stargazers_count": 351,
+      "license": {
+        "key": "other",
+        "name": "Other",
+        "spdx_id": "NOASSERTION",
+        "url": null,
+        "node_id": "MDc6TGljZW5zZTA="
+      }
+    },
+    {
+      "full_name": "VxASI/blender-mcp-vxai",
+      "html_url": "https://github.com/VxASI/blender-mcp-vxai",
+      "stargazers_count": 300,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "DMontgomery40/bambu-printer-mcp",
+      "html_url": "https://github.com/DMontgomery40/bambu-printer-mcp",
+      "stargazers_count": 298,
+      "license": {
+        "key": "gpl-2.0",
+        "name": "GNU General Public License v2.0",
+        "spdx_id": "GPL-2.0",
+        "url": "https://api.github.com/licenses/gpl-2.0",
+        "node_id": "MDc6TGljZW5zZTg="
+      }
+    },
+    {
+      "full_name": "per-simmons/unreal-agent-harness",
+      "html_url": "https://github.com/per-simmons/unreal-agent-harness",
+      "stargazers_count": 210,
+      "license": null
+    },
+    {
+      "full_name": "HoldMyBeer-gg/blenderwright",
+      "html_url": "https://github.com/HoldMyBeer-gg/blenderwright",
+      "stargazers_count": 193,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "dhakalnirajan/blender-open-mcp",
+      "html_url": "https://github.com/dhakalnirajan/blender-open-mcp",
+      "stargazers_count": 122,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "ifBars/blender-agent-studio",
+      "html_url": "https://github.com/ifBars/blender-agent-studio",
+      "stargazers_count": 109,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "HurtzDonutStudios/ai-forge-mcp",
+      "html_url": "https://github.com/HurtzDonutStudios/ai-forge-mcp",
+      "stargazers_count": 101,
+      "license": null
+    },
+    {
+      "full_name": "pranav-deshmukh/blender-mcp",
+      "html_url": "https://github.com/pranav-deshmukh/blender-mcp",
+      "stargazers_count": 98,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "bpy-dev/blender-mcp",
+      "html_url": "https://github.com/bpy-dev/blender-mcp",
+      "stargazers_count": 97,
+      "license": {
+        "key": "gpl-3.0",
+        "name": "GNU General Public License v3.0",
+        "spdx_id": "GPL-3.0",
+        "url": "https://api.github.com/licenses/gpl-3.0",
+        "node_id": "MDc6TGljZW5zZTk="
+      }
+    },
+    {
+      "full_name": "ProfRino/Blender-MCP-Assembly-Skill",
+      "html_url": "https://github.com/ProfRino/Blender-MCP-Assembly-Skill",
+      "stargazers_count": 85,
+      "license": null
+    },
+    {
+      "full_name": "seehiong/blender-mcp-bridge",
+      "html_url": "https://github.com/seehiong/blender-mcp-bridge",
+      "stargazers_count": 84,
+      "license": {
+        "key": "mit",
+        "name": "MIT License",
+        "spdx_id": "MIT",
+        "url": "https://api.github.com/licenses/mit",
+        "node_id": "MDc6TGljZW5zZTEz"
+      }
+    },
+    {
+      "full_name": "wangjiake666/dkyj-director",
+      "html_url": "https://github.com/wangjiake666/dkyj-director",
+      "stargazers_count": 81,
+      "license": {
+        "key": "gpl-3.0",
+        "name": "GNU General Public License v3.0",
+        "spdx_id": "GPL-3.0",
+        "url": "https://api.github.com/licenses/gpl-3.0",
+        "node_id": "MDc6TGljZW5zZTk="
+      }
+    },
+    {
+      "full_name": "mezallastudio/antigravity-blender-mcp",
+      "html_url": "https://github.com/mezallastudio/antigravity-blender-mcp",
+      "stargazers_count": 68,
+      "license": null
+    }
+  ]
+}

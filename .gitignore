@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+.state/
+outputs/
+dist/
+plugins/
+.agents/
+config.json
+project-blocks/
+plan.json
+research/*
+!research/comparison.md
+!research/github-search-2026-11-09.json
+validation/
+*.blend1
