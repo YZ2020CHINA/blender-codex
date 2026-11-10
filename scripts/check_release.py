@@ -10,6 +10,9 @@ from blender_codex import __version__
 
 manifest = json.loads((ROOT / "plugin.json").read_text(encoding="utf-8"))
 assert manifest["version"] == __version__, "Manifest/Python version mismatch"
+addon_ast = ast.parse((ROOT / "addon/__init__.py").read_text(encoding="utf-8"))
+addon_info = next(ast.literal_eval(node.value) for node in addon_ast.body if isinstance(node, ast.Assign) and any(isinstance(target, ast.Name) and target.id == "bl_info" for target in node.targets))
+assert ".".join(map(str, addon_info["version"])) == __version__, "Add-on/Python version mismatch"
 assert "## " + __version__ + " — " in (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
 license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
 assert all(part in license_text for part in ("MIT License", "Permission is hereby granted, free of charge", "THE SOFTWARE IS PROVIDED", "LIABILITY"))

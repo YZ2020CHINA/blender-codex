@@ -30,19 +30,61 @@ export function voxelMesh(cells,cellSize=.1){
 }
 '''
 
+TRANSFER_JS = '''import * as THREE from 'three';
+import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
+// Expand only the exported clone. Blender versions differ in instancing-extension support.
+export async function exportBundle(asset,camera,width,height,time=0){
+ if(camera.view?.enabled||camera.filmOffset)throw Error('Disable camera view offsets/filmOffset before handoff, or use a dedicated calibrated camera export');
+ if(!camera.isPerspectiveCamera&&!camera.isOrthographicCamera)throw Error('Expected a perspective or orthographic camera');
+ const cameraInfo=camera.isPerspectiveCamera?{type:'perspective',vertical_fov:camera.getEffectiveFOV(),aspect:camera.aspect}:
+  {type:'orthographic',height:(camera.top-camera.bottom)/camera.zoom,width:(camera.right-camera.left)/camera.zoom,center:[(camera.left+camera.right)/2,(camera.top+camera.bottom)/2]};
+ const aspect=camera.isPerspectiveCamera?camera.aspect:cameraInfo.width/cameraInfo.height;
+ if(Math.abs(aspect-width/height)>1e-4)throw Error('Match camera aspect to export resolution first');
+ asset.updateWorldMatrix(true,true);camera.updateWorldMatrix(true,false);
+ const snapshot=new THREE.Scene(),copy=asset.clone(true);copy.matrix.copy(asset.matrixWorld);copy.matrix.decompose(copy.position,copy.quaternion,copy.scale);snapshot.add(copy);
+ const instances=[];copy.traverse(o=>{
+  if(o.isSkinnedMesh)throw Error('Skinned assets need a dedicated rig/animation export');
+  if(o.isMesh){for(const m of (Array.isArray(o.material)?o.material:[o.material])){
+   if(!m.isMeshStandardMaterial&&!m.isMeshBasicMaterial)throw Error('Use Standard/Physical/Basic materials or bake custom shaders before export');
+  }}
+  if(o.isInstancedMesh)instances.push(o);
+ });
+ for(const source of instances){
+  const group=new THREE.Group();group.name=source.name||'Instances';group.position.copy(source.position);group.quaternion.copy(source.quaternion);group.scale.copy(source.scale);group.visible=source.visible;
+  for(let i=0;i<source.count;i++){
+   let mats=(Array.isArray(source.material)?source.material:[source.material]).map(m=>m.clone());
+   if(source.instanceColor){const tint=new THREE.Color();source.getColorAt(i,tint);mats.forEach(m=>m.color.multiply(tint));}
+   const mesh=new THREE.Mesh(source.geometry,Array.isArray(source.material)?mats:mats[0]);mesh.name=group.name+'_'+i;
+   source.getMatrixAt(i,mesh.matrix);mesh.matrix.decompose(mesh.position,mesh.quaternion,mesh.scale);group.add(mesh);
+  }
+  // InstancedMesh can also own children; preserve them.
+  for(const child of [...source.children])group.add(child);
+  source.parent.add(group);source.removeFromParent();
+ }
+ const view=camera.clone();view.name='TransferCamera';camera.matrixWorld.decompose(view.position,view.quaternion,view.scale);snapshot.add(view);snapshot.updateMatrixWorld(true);
+ const buffer=await new GLTFExporter().parseAsync(snapshot,{binary:true,onlyVisible:true,maxTextureSize:4096});
+ const hash=await crypto.subtle.digest('SHA-256',buffer),sha256=Array.from(new Uint8Array(hash),x=>x.toString(16).padStart(2,'0')).join('');
+ return {buffer,manifest:{schema:'blender-studio-transfer/1',glb:'asset.glb',sha256,units:'meters',up:'Y',resolution:[width,height],
+  camera:'TransferCamera',camera_projection:cameraInfo,time:Number(time),static_snapshot:true,instance_strategy:'expanded exported clone; original scene unchanged',
+  limitations:['Browser world/lighting/custom effects must be rebuilt in Blender','Procedural motion is not baked animation','Textures embedded in GLB; maximum texture dimension 4096']}};
+}
+export function download(name,data,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+'''
+
 HTML = '''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><title>Reference to Three.js · Editable Scene</title>
 <style>body{margin:0;background:#20252b;color:white;font:14px system-ui}canvas{display:block}aside{position:fixed;top:12px;left:12px;background:#20252bdd;padding:14px;border-radius:10px}button,input{margin:6px}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
-<aside><b>参考图 → 可编辑代码 → GLB</b><p>当前为桌子白模示例，请编辑 model.js。</p><input id="seek" type="range" min="0" max="10" step=".01" value="0"><button id="export">下载 GLB</button><span id="status"></span></aside>
+<aside><b>参考图 → 可编辑代码 → Blender</b><p>当前为桌子白模示例，请编辑 model.js。</p><input id="seek" type="range" min="0" max="10" step=".01" value="0"><button id="export">下载 GLB</button><button id="manifest" disabled>下载交接清单</button><span id="status"></span></aside>
 <script type="module">
-import * as THREE from 'three';import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';import {createAsset,evaluate} from './model.js';
+import * as THREE from 'three';import {exportBundle,download} from './transfer.js';import {createAsset,evaluate} from './model.js';
 const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(1);renderer.outputColorSpace=THREE.SRGBColorSpace;document.body.append(renderer.domElement);
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x20252b);const asset=createAsset();scene.add(asset);
 scene.add(new THREE.HemisphereLight(0xd8e9ff,0x65523a,2));const key=new THREE.DirectionalLight(0xffdfb0,3);key.position.set(4,7,3);scene.add(key);
 const camera=new THREE.PerspectiveCamera(40,innerWidth/innerHeight,.1,1000);
-window.renderAt=async t=>{evaluate(Number(t),asset,camera);renderer.render(scene,camera);};
+let currentTime=0,bundle=null;window.renderAt=async t=>{currentTime=Number(t);evaluate(currentTime,asset,camera);renderer.render(scene,camera);};
 document.querySelector('#seek').oninput=e=>window.renderAt(e.target.value);
-document.querySelector('#export').onclick=async()=>{try{const buffer=await new GLTFExporter().parseAsync(asset,{binary:true,onlyVisible:true});const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buffer],{type:'model/gltf-binary'}));a.download='asset.glb';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}catch(e){document.querySelector('#status').textContent=e.message;}};
+document.querySelector('#export').onclick=async()=>{try{bundle=await exportBundle(asset,camera,innerWidth,innerHeight,currentTime);download('asset.glb',bundle.buffer,'model/gltf-binary');document.querySelector('#manifest').disabled=false;document.querySelector('#status').textContent='模型已导出，请下载同一批交接清单';}catch(e){document.querySelector('#status').textContent=e.message;}};
+document.querySelector('#manifest').onclick=()=>download('asset.transfer.json',JSON.stringify(bundle.manifest,null,2),'application/json');
 window.addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();window.renderAt(document.querySelector('#seek').value);});
 await window.renderAt(0);window.sceneReady=true;
 </script></html>'''
@@ -64,7 +106,7 @@ try{const page=await browser.newPage({viewport:{width:1920,height:1080},deviceSc
 def scaffold(directory, brief="", reference_path=""):
     folder = Path(directory).resolve()
     folder.mkdir(parents=True, exist_ok=True)
-    names = ["index.html", "model.js", "capture.mjs", "quality-contract.json"]
+    names = ["index.html", "model.js", "transfer.js", "capture.mjs", "quality-contract.json"]
     if any((folder / n).exists() for n in names):
         raise ValueError("Use a new directory; existing authoring files will not be overwritten")
     reference = None
@@ -74,7 +116,7 @@ def scaffold(directory, brief="", reference_path=""):
             raise ValueError("Reference must be a PNG/JPEG/WebP image")
         reference = "reference" + source.suffix.lower()
         shutil.copy2(source, folder / reference)
-    for name, text in (("model.js", MODEL), ("index.html", HTML), ("capture.mjs", CAPTURE)):
+    for name, text in (("model.js", MODEL), ("index.html", HTML), ("transfer.js", TRANSFER_JS), ("capture.mjs", CAPTURE)):
         (folder / name).write_text(text, encoding="utf-8")
     contract = {"brief": brief, "reference": reference, "status": "blockout_needs_review",
                 "passes": ["silhouette", "proportions", "negative_space", "materials", "lighting", "motion", "export_import"],
@@ -82,4 +124,4 @@ def scaffold(directory, brief="", reference_path=""):
                 "limits": "No automatic image reconstruction, music generation or rigging. GLB button exports the current static asset; procedural motion needs explicit baked animation clips or offline frame rendering."}
     (folder / "quality-contract.json").write_text(json.dumps(contract, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"directory": str(folder), "html": str(folder / "index.html"), "reference": reference,
-            "next": "Edit model.js from the reference; preview_threejs, compare screenshots, record review evidence, download GLB and import_asset. For deterministic PNG sequences use capture.mjs with optional Playwright."}
+            "next": "Edit model.js from the reference; preview_threejs and review screenshots. Download asset.glb AND asset.transfer.json from the same export, inspect_threejs_transfer, then import_threejs_scene with a NEW checkpoint_path. Browser lighting needs Blender refinement. For deterministic PNG sequences use capture.mjs with optional Playwright."}

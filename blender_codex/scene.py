@@ -585,6 +585,54 @@ def import_asset(p):
     return {"objects": sorted(o.name for o in set(bpy.data.objects) - before), "path": str(path)}
 
 
+def import_threejs(p, config):
+    from blender_codex.transfer import inspect_bundle
+    report = inspect_bundle(p["glb_path"], p["manifest_path"])
+    checkpoint = output(p["checkpoint_path"], config, ".blend")
+    if checkpoint.exists():
+        raise ValueError("Checkpoint exists; choose a NEW .blend path")
+    # Save a copy: keep the user's working filepath unchanged.
+    bpy.ops.file.pack_all()
+    bpy.ops.wm.save_as_mainfile(filepath=str(checkpoint), check_existing=False, copy=True)
+    scene = bpy.context.scene
+    previous_camera = scene.camera
+    result = import_asset({"path": report["glb"]})
+    imported = [obj(name) for name in result["objects"]]
+    collection = bpy.data.collections.new(p.get("collection_name", "ThreeJS_Import"))
+    scene.collection.children.link(collection)
+    for ob in imported:
+        for owner in list(ob.users_collection):
+            owner.objects.unlink(ob)
+        collection.objects.link(ob)
+    cameras = sorted((ob for ob in imported if ob.type == "CAMERA"), key=lambda ob: ob.name)
+    if p.get("use_imported_camera", True) and cameras:
+        scene.camera = cameras[0]
+        projection = report["camera_projection"]
+        # glTF imports do not reliably preserve camera aspect/sensor fit across Blender versions.
+        data = scene.camera.data
+        data.sensor_fit = "VERTICAL"
+        data.shift_x = data.shift_y = 0
+        if projection["type"] == "perspective":
+            data.type = "PERSP"
+            data.lens = data.sensor_height / (2 * math.tan(math.radians(projection["vertical_fov"]) / 2))
+        else:
+            data.type = "ORTHO"
+            data.ortho_scale = projection["height"]
+        scene.render.resolution_x, scene.render.resolution_y = report["resolution"]
+        scene.render.resolution_percentage = 100
+        scene.render.pixel_aspect_x = scene.render.pixel_aspect_y = 1
+    else:
+        scene.camera = previous_camera
+    bpy.ops.file.pack_all()
+    images = {node.image for ob in imported for slot in ob.material_slots if slot.material and slot.material.use_nodes
+              for node in slot.material.node_tree.nodes if node.bl_idname == "ShaderNodeTexImage" and node.image}
+    result.update(checkpoint=str(checkpoint), collection=collection.name, cameras=[c.name for c in cameras],
+                  active_camera=scene.camera.name if scene.camera else None,
+                  images=[{"name": image.name, "packed": bool(image.packed_file), "size": list(image.size)} for image in sorted(images, key=lambda image: image.name)],
+                  limitations=report["limitations"], status="imported_needs_render_review")
+    return result
+
+
 def template(p):
     style = p.get("template", "interior")
     if style not in ("interior", "exterior", "anime_stage", "game_isometric"):
@@ -635,6 +683,8 @@ def template(p):
 
 
 def dispatch(action, p, config):
+    if action == "import_threejs_scene":
+        return import_threejs(p, config)
     if action == "status":
         return {"blender": bpy.app.version_string, "background": bpy.app.background,
                 "file": bpy.data.filepath, "frame": bpy.context.scene.frame_current,

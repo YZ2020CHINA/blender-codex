@@ -47,9 +47,11 @@ description: 使用本机 Blender 制作影视过场、镜头动画、三渲二�
 
 ## Three.js、参考图建模与代码短片
 
+用户希望“先找照片/素材，用 Three.js 搭景，再进 Blender 精修并交付”时，读取 [照片到 Blender 工作流](references/reference-threejs-blender.md)。使用 pipeline_* 记录来源与阶段证据；网页同时导出 GLB 和交接清单，inspect_threejs_transfer 预检后用 import_threejs_scene 创建检查点并导入。技术通过与用户批准分别记录，不默认强制所有 Blender 任务经过 Three.js。
+
 继续遵守六阶段确认。`export_glb` → `build_threejs_viewer` → `preview_threejs` 提供 Blender 到 HTML 路线。查看相机和动画剪辑列表并截图验收；GLB 不保留 Freestyle、合成器、天空、体积雾或面光的完整外观。NPR/体积材质默认拒绝静默丢失；先烘焙/替换或经用户确认允许损失。动画片段与时间线切镜须在网页重新编排。
 
-参考图/文字 → 代码模型：先读取图片并与用户确认轮廓、比例、风格。用 `create_threejs_project` 建立全新目录；编辑 `model.js` 的 createAsset，分轮廓/比例、结构、材质、光照逐步实现，按 quality-contract.json 截图比较并记录修改。初始桌子只是原创白模示例。网页“下载 GLB”导出当前静态资产，再通过 `import_asset` 导入 Blender；代码运动不自动成为 GLB 动画，需烘焙为 glTF AnimationClip 或在浏览器逐帧渲染。不能声称自动摄影测量或复杂人物精确重建。
+参考图/文字 → 代码模型：先读取图片并与用户确认轮廓、比例、风格。用 `create_threejs_project` 建立全新目录；编辑 `model.js` 的 createAsset，分轮廓/比例、结构、材质、光照逐步实现，按 quality-contract.json 截图比较并记录修改。初始桌子只是原创白模示例。网页“下载 GLB”和“下载交接清单”导出同一静态快照及相机，按上述交接工具导入 Blender；已有普通 GLB 仍可通过 `import_asset` 导入。代码运动不自动成为 GLB 动画，需烘焙为 glTF AnimationClip 或在浏览器逐帧渲染。不能声称自动摄影测量或复杂人物精确重建。
 
 代码短片路线参考 https://x.com/gkxspace/status/2108743836348694659 ：概念图 → 人工/代码解释为稀疏体素单元（如 32³ 范围）→ voxelMesh → evaluate(t) → 逐帧 PNG → 编码。evaluate(t) 必须无状态，固定随机种子，任意时间跳转都得到同一画面。脚手架的 capture.mjs 用可选 Playwright 对本地页面逐帧截图，需用户环境已有 Playwright/Chromium；不自动安装或运行付费服务。顶点 AO 是可选后续改进，当前 helper 不宣称已实现。音乐和配音单独收集/制作并确认授权。参考 guide 见 [工作流与来源](references/workflows.md)。
 

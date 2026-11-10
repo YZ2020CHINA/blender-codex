@@ -1,5 +1,5 @@
 """Optional Blender add-on for an already-open session. Configure the bridge source first."""
-bl_info = {"name": "Codex Studio Bridge", "author": "YZ2020CHINA", "version": (1, 0, 0),
+bl_info = {"name": "Codex Studio Bridge", "author": "YZ2020CHINA", "version": (1, 1, 0),
            "blender": (4, 2, 0), "category": "System", "location": "Preferences > Add-ons"}
 import sys
 from pathlib import Path

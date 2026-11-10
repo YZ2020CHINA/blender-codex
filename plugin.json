@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "blender-studio",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Local Blender MCP for cinematics, anime NPR, 2D game backgrounds, licensed assets and film composition references.",
   "author": {"name": "YZ2020CHINA"},
   "license": "MIT",
@@ -10,7 +10,7 @@
     "com.openai": {
       "interface": {
         "displayName": "Blender 影视与动漫场景工作室",
-        "shortDescription": "影视运镜、三渲二、游戏背景与授权素材检索",
+        "shortDescription": "照片参考、Three.js搭景、Blender精修与交付",
         "longDescription": "连接本机 Blender，构建室内外场景、灯光、天气与镜头动画，输出动漫背景、透明图层和胶片风格画面。支持 CC0 素材和 PLATEAU 城市分块，以及 Fab 与经典电影参考检索入口。",
         "developerName": "YZ2020CHINA",
         "category": "Creativity",

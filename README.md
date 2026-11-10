@@ -4,6 +4,16 @@
 
 源码 MIT。Blender、素材、浏览器、FFmpeg 与第三方媒体分别适用其自身许可。无需模型 API key；Codex 本身及可选外部服务费用由用户自己的服务决定。
 
+## 照片参考到 Blender 成品（1.1.0）
+
+新增可复用路线：收集并确认照片/素材 → Three.js 可编辑小样 → GLB 与交接清单 → Blender 精修 → 预览修改 → 成品交付。适合便利店、街区等游戏/视觉小说背景。照片由 Codex 分析并编写场景代码，不是自动摄影测量。
+
+新项目 production_project_init 同时建立 production-pipeline.json；旧项目可用 pipeline_init。pipeline_reference 记录来源/许可与预览，pipeline_stage 保存实际证据和文件。create_threejs_project 可选 project_directory 关联进度；省略仍可独立使用。
+
+网页确定镜头后依次下载 asset.glb、asset.transfer.json。导出包含当前相机、分辨率、嵌入贴图和实例展开副本；inspect_threejs_transfer 校验文件，再 import_threejs_scene 指定全新的 checkpoint_path 导入。工具先保存当前场景副本，另建集合、激活导入相机并打包贴图。原有场景不清空，浏览器灯光需在 Blender 重建和渲染匹配。
+
+pipeline_delivery_check 只读技术检查，不自动批准作品；pipeline_approve 只记录真实用户确认。完整操作、相机/人物/黄昏版本与货架检查见 [照片 → Three.js → Blender 工作流](skills/blender-studio/references/reference-threejs-blender.md)。安装新版本后新开聊天或重启 Codex，已运行 Blender 的旧模块需先保存工程、重启 Blender 后重新连接。
+
 ## 按步骤制作作品
 
 默认 skill 要求六阶段协作，每阶段结束等待用户确认：
