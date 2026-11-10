@@ -10,7 +10,7 @@ import traceback
 from blender_codex import __version__
 from blender_codex.assets import Assets, film_references, asset_sources
 from blender_codex.datasets import Datasets
-from blender_codex import web, authoring, production
+from blender_codex import web, authoring, production, pipeline, transfer
 from blender_codex.client import Client
 from blender_codex.common import load_config
 
@@ -41,6 +41,25 @@ def tool(name, description, properties=None, required=(), readonly=False, destru
 
 
 TOOLS = [
+    tool("pipeline_init", "Initialize a reusable reference → Three.js → Blender → delivery record inside an existing project folder.",
+         {"directory": string(), "title": string()}, ["directory"]),
+    tool("pipeline_status", "Read pipeline stages, recorded references, artifacts and delivery gate status.",
+         {"directory": string()}, ["directory"], readonly=True),
+    tool("pipeline_reference", "Record a reference photo/material source, license status and optional local preview copy.",
+         {"directory": string(), "source": string(), "role": string(), "license_name": string(),
+          "verified": BOOLEAN, "local_path": string(), "notes": string()}, ["directory", "source"]),
+    tool("pipeline_stage", "Record an observed stage result and artifacts without claiming user approval.",
+         {"directory": string(), "stage": string(enum=list(pipeline.STAGES)), "status": string(enum=list(pipeline.STATUSES)),
+          "artifacts": STRINGS, "evidence": STRINGS, "notes": string()}, ["directory", "stage", "status"]),
+    tool("pipeline_delivery_check", "Check that all upstream stages passed and delivery artifacts exist; does not publish or upload.",
+         {"directory": string()}, ["directory"], readonly=True),
+    tool("pipeline_approve", "Record explicit final user approval after technical checks. Supply the user's actual words; tool success is not approval.",
+         {"directory": string(), "user_confirmation": string()}, ["directory", "user_confirmation"]),
+    tool("inspect_threejs_transfer", "Validate exported GLB header/checksum, transfer manifest, units and resolution before touching Blender.",
+         {"glb_path": string(), "manifest_path": string()}, ["glb_path", "manifest_path"], readonly=True),
+    tool("import_threejs_scene", "Checkpoint existing Blender scene to a NEW .blend, import validated Three.js GLB, group objects, activate imported camera and pack images. Does not clear existing objects or reproduce browser lighting. Import failures may leave partial objects; inspect before retrying.",
+         {"glb_path": string(), "manifest_path": string(), "checkpoint_path": string(), "collection_name": string(),
+          "use_imported_camera": BOOLEAN, "project_directory": string()}, ["glb_path", "manifest_path", "checkpoint_path"]),
     tool("production_project_init", "Create folders after user confirms project location/name. Includes source, assets, previews, licenses and delivery/成品交付 with instructions. Does not approve review stages.",
          {"directory": string(), "title": string()}, ["directory"]),
     tool("blender_launch", "Launch Blender and connect the authenticated local bridge; reuses a healthy bridge.", {"background": BOOLEAN}),
@@ -136,7 +155,7 @@ TOOLS = [
     tool("preview_threejs", "Serve a generated viewer over loopback HTTP until MCP server exits; does not publish or upload it.",
          {"directory": string()}, ["directory"]),
     tool("create_threejs_project", "Create editable reference-to-code model, sparse voxel helper, deterministic evaluate(t), GLB export and optional Playwright frame-capture script. Reference image is guidance, not automatic reconstruction.",
-         {"directory": string(), "brief": string(), "reference_path": string()}, ["directory"]),
+         {"directory": string(), "brief": string(), "reference_path": string(), "project_directory": string()}, ["directory"]),
 ]
 INDEX = {t["name"]: t for t in TOOLS}
 
@@ -177,10 +196,35 @@ class Server:
         if name not in INDEX:
             raise ValueError("Unknown tool: " + name)
         validate(arguments, INDEX[name]["inputSchema"])
-        if name == "blender_launch":
+        if name == "pipeline_init":
+            value = pipeline.init(**arguments)
+        elif name == "pipeline_status":
+            value = pipeline.status(**arguments)
+        elif name == "pipeline_reference":
+            value = pipeline.record_reference(**arguments)
+        elif name == "pipeline_stage":
+            value = pipeline.record_stage(**arguments)
+        elif name == "pipeline_delivery_check":
+            value = pipeline.delivery_check(**arguments)
+        elif name == "pipeline_approve":
+            value = pipeline.approve(**arguments)
+        elif name == "inspect_threejs_transfer":
+            value = transfer.inspect_bundle(**arguments)
+        elif name == "import_threejs_scene":
+            params = dict(arguments)
+            project = params.pop("project_directory", "")
+            if project:
+                pipeline.status(project)
+            transfer.inspect_bundle(params["glb_path"], params["manifest_path"])
+            value = self.client.call(name, params)
+            if project:
+                pipeline.auto_stage(project, "blender_import", artifacts=[params["glb_path"], params["manifest_path"], value["checkpoint"]],
+                                    notes="Import observed; check render, hierarchy, camera, materials and packed images before passing")
+        elif name == "blender_launch":
             value = self.client.launch(**arguments)
         elif name == "production_project_init":
             value = production.initialize(**arguments)
+            value["pipeline"] = pipeline.init(arguments["directory"], arguments.get("title", "Untitled production"))
         elif name == "asset_search":
             value = self.assets.search(**arguments)
         elif name == "asset_files":
@@ -212,7 +256,13 @@ class Server:
         elif name == "preview_threejs":
             value = web.preview(**arguments)
         elif name == "create_threejs_project":
-            value = authoring.scaffold(**arguments)
+            params = dict(arguments)
+            project = params.pop("project_directory", "")
+            if project:
+                pipeline.status(project)
+            value = authoring.scaffold(**params)
+            if project:
+                pipeline.auto_stage(project, "threejs", artifacts=[value["html"]], notes="Scaffold created; modeling, preview and visual review still required")
         elif name == "city_import":
             provenance = json.loads(Path(arguments["provenance"]).read_text(encoding="utf-8"))
             if provenance.get("dataset") != "city" or provenance.get("license") != "CC-BY-4.0":
