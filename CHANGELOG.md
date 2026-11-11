@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Codex 兼容性：`mcp.json` 改为 `cmd.exe` + `launch-mcp.cmd` 启动器，去掉 Codex 不接受的超时字段；现在在 Codex 中使用 Claude（如经 Magpie 中转）或 GPT 模型都能调用本插件工具和 skill。
+
 ## 1.1.0 — 2026-11-10
 
 - Reference-photo → editable Three.js → Blender refinement → delivery workflow, source/license records and evidence-backed stage tracking.

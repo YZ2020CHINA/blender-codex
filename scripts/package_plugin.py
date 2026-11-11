@@ -16,6 +16,17 @@ FILES = ("plugin.json", "LICENSE", "THIRD_PARTY_NOTICES.md", "README.md", "CHANG
 FOLDERS = ("blender_codex", "skills", "addon", "scripts", "tests", ".github")
 
 
+def write_launcher(plugin, command, args, env=None):
+    """Codex plugin stdio servers must use a bare executable, so absolute paths live in a launcher."""
+    def quote(value):
+        return '"' + str(value).replace("%", "%%") + '"'
+    lines = ["@echo off", "chcp 65001 >nul"]
+    lines += ['set "{}={}"'.format(key, str(value).replace("%", "%%")) for key, value in (env or {}).items()]
+    lines.append(" ".join(quote(part) for part in [command, *args]))
+    (plugin / "launch-mcp.cmd").write_text("\r\n".join(lines) + "\r\n", encoding="utf-8")
+    return {"type": "stdio", "command": "cmd.exe", "args": ["/d", "/s", "/c", "call", "./launch-mcp.cmd"], "cwd": "./"}
+
+
 def source_files():
     files = [ROOT / n for n in FILES]
     files += [ROOT / "research/comparison.md", ROOT / ".gitignore", ROOT / ".gitattributes"]
@@ -48,9 +59,8 @@ def main():
             shutil.copytree(ROOT / name, plugin / name, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
         # Absolute source paths deliberately point to the stable user checkout, not disposable Codex cache.
         write_json(plugin / "mcp.json", {"$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
-            "mcpServers": {"blender_studio": {"type": "stdio", "command": sys.executable,
-                "args": ["-X", "utf8", "-s", str(ROOT / "server.py"), "--config", str(config_path)],
-                "startup_timeout_sec": 30, "tool_timeout_sec": 900}}})
+            "mcpServers": {"blender_studio": write_launcher(plugin, sys.executable,
+                ["-X", "utf8", "-s", str(ROOT / "server.py"), "--config", str(config_path)])}})
         write_json(ROOT / ".agents/plugins/marketplace.json", {"name": "blender-studio-tools",
             "interface": {"displayName": "Blender 影视与动漫工作室"}, "plugins": [{"name": manifest["name"],
             "source": {"source": "local", "path": "./plugins/" + manifest["name"]},
