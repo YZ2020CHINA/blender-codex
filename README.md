@@ -4,6 +4,12 @@
 
 源码 MIT。Blender、素材、浏览器、FFmpeg 与第三方媒体分别适用其自身许可。无需模型 API key；Codex 本身及可选外部服务费用由用户自己的服务决定。
 
+## 测试视频
+
+点击封面观看 Blender 插件测试视频：
+
+[![Blender 插件测试视频](https://img.youtube.com/vi/8NeiEo6QHEs/maxresdefault.jpg)](https://www.youtube.com/watch?v=8NeiEo6QHEs&list=PLaO3tCcYcfL4)
+
 ## Codex 中使用 Claude / GPT 调用插件（2026-11-11 更新）
 
 这次更新后，**在 Codex 里切换到 Claude 模型（例如通过 Magpie 等中转站接入的 Claude API）也可以正常调用本插件的工具和 skill**，与使用 GPT 模型时一致。
