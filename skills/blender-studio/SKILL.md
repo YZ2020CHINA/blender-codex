@@ -29,6 +29,12 @@ description: 使用本机 Blender 制作影视过场、镜头动画、三渲二�
 
 ## 场景工具
 
+### 上游能力适配
+
+在任何网格编辑、优化或导出任务中，先用 `scene_info` 了解当前场景；完成几何改动后调用只读 `asset_audit`，读取评估后网格的三角面、顶点、尺寸、缩放、UV 层和材质槽。目标是移动端、Web、VR、Roblox、PC 或主机时，再调用 `mesh_stats` 获取保守的每网格三角面指导值。它们是结构检查和预算提示，不替代多角度渲染、拓扑、法线、穿插、绑定权重或目标引擎验收。
+
+程序化建模应使用确定性的 seed，尽量保留实例，直到需要编辑或导出时才 Realize；Geometry Nodes 的节点类型和插槽随 Blender 5.x 变化，优先用 Blender 数据 API 并在真实版本中验证。导出前先审计、再检查单位/命名/原点/材质贴图和动画剪辑，最后运行网页或目标引擎往返检查。适配来源、版本固定点和未复制内容见 [第三方说明](../../THIRD_PARTY_NOTICES.md)。
+
 `scene_template` 默认追加；仅在用户授权清空时传 clear=true。`create_primitive`、`transform_object`、`set_material` 可搭建和调整场景；旋转 Euler 使用弧度。`lighting_preset` 提供 golden_hour/moonlight/studio/anime_soft/noir，每次增加新灯，请先查场景避免重复。`set_environment` 支持天空和本地 HDRI。`weather` 的雨雪是帧区间内的风格化几何降水，雾是体积材质，均不承诺真实流体/碰撞。
 
 `render_animation` 是同步渲染，先用 320×180、少量帧试验；长片拆成逐镜头批次，避免协议超时。超时后先查进度和输出，不能盲目重试长任务。图片以 `image_preview` 检查。正式交付 `save_scene(pack_resources=true)`，注明帧率、范围、输出与素材来源。PNG 序列可交给视频剪辑工具编码；本插件不捆绑 FFmpeg 或音乐。

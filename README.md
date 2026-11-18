@@ -30,6 +30,12 @@
 
 pipeline_delivery_check 只读技术检查，不自动批准作品；pipeline_approve 只记录真实用户确认。完整操作、相机/人物/黄昏版本与货架检查见 [照片 → Three.js → Blender 工作流](skills/blender-studio/references/reference-threejs-blender.md)。安装新版本后新开聊天或重启 Codex，已运行 Blender 的旧模块需先保存工程、重启 Blender 后重新连接。
 
+### 资产审计与平台预算（1.2.0）
+
+在导出或交付前先调用 `asset_audit`，读取评估后网格的对象数、顶点数、三角面数、尺寸、缩放、UV 层和空材质槽，并查看结构性警告。需要目标平台预估时调用 `mesh_stats`，可选 `mobile`、`web`、`vr`、`roblox`、`pc` 或 `console`；报告是保守的每网格指导值，不代替目标引擎中的可见性、绘制调用、材质内存和视觉检查。
+
+这部分工作流参考了 [EL4CTEO/blender-skills](https://github.com/EL4CTEO/blender-skills) 的 Blender 5.x core routing、场景卫生、QA gate、平台预算、Geometry Nodes 检查和导出清单；适配记录和 MIT 许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。不复制其脚本、模板或媒体。
+
 ## 按步骤制作作品
 
 默认 skill 要求六阶段协作，每阶段结束等待用户确认：

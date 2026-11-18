@@ -297,6 +297,62 @@ def shot_list():
     return [{"camera": ob.name, **json.loads(ob["studio_shot"])} for ob in bpy.data.objects if "studio_shot" in ob]
 
 
+def asset_report(p):
+    names = p.get("objects")
+    objects = [obj(name) for name in names] if names else list(bpy.context.scene.objects)
+    meshes = [ob for ob in objects if ob.type == "MESH"]
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    mesh_records = []
+    issues = []
+    materials = set()
+    triangles = 0
+    evaluated_vertices = 0
+    for ob in meshes:
+        materials.update(slot.material.name for slot in ob.material_slots if slot.material)
+        evaluated = ob.evaluated_get(depsgraph)
+        mesh = evaluated.to_mesh()
+        try:
+            mesh.calc_loop_triangles()
+            vertex_count = len(mesh.vertices)
+            triangle_count = len(mesh.loop_triangles)
+            triangles += triangle_count
+            evaluated_vertices += vertex_count
+            record = {"name": ob.name, "triangles": triangle_count, "vertices": vertex_count,
+                      "dimensions": [round(value, 4) for value in ob.dimensions],
+                      "scale": [round(value, 5) for value in ob.scale],
+                      "materials": [slot.material.name if slot.material else None for slot in ob.material_slots],
+                      "uv_layers": len(mesh.uv_layers)}
+            if any(value < 0 for value in ob.scale):
+                issues.append({"object": ob.name, "severity": "warning", "check": "negative_scale"})
+            if any(abs(value - 1) > 1e-4 for value in ob.scale):
+                issues.append({"object": ob.name, "severity": "info", "check": "unapplied_scale"})
+            if not mesh.uv_layers:
+                issues.append({"object": ob.name, "severity": "warning", "check": "missing_uv"})
+            if any(slot.material is None for slot in ob.material_slots):
+                issues.append({"object": ob.name, "severity": "warning", "check": "empty_material_slot"})
+            mesh_records.append(record)
+        finally:
+            evaluated.to_mesh_clear()
+    return {"objects": len(objects), "mesh_objects": len(meshes), "vertices": evaluated_vertices,
+            "triangles": triangles, "materials": len(materials), "meshes": mesh_records,
+            "issues": issues, "checks": ["evaluated_mesh_counts", "dimensions", "scale", "UV_layers", "material_slots"],
+            "limitations": "Read-only structural audit; does not test intersections, z-fighting, detached parts, normals, UV overlap, rig weights or visual quality."}
+
+
+def mesh_stats(p):
+    report = asset_report(p)
+    budgets = {"mobile": 3000, "web": 10000, "vr": 10000, "roblox": 20000,
+               "pc": 50000, "console": 50000}
+    budget = p.get("budget", "web")
+    if budget not in budgets:
+        raise ValueError("budget must be mobile, web, vr, roblox, pc, or console")
+    report["budget"] = {"platform": budget, "guidance_triangles_per_mesh": budgets[budget],
+                        "over_budget": [mesh["name"] for mesh in report["meshes"]
+                                        if mesh["triangles"] > budgets[budget]],
+                        "note": "Conservative guidance, not an engine-specific hard limit; review whole-scene visibility and draw calls in the target engine."}
+    return report
+
+
 def weather(p):
     kind = p.get("kind", "fog")
     if kind not in ("fog", "rain", "snow"):
@@ -692,6 +748,10 @@ def dispatch(action, p, config):
     if action == "scene_info":
         return {"objects": [{"name": o.name, "type": o.type, "location": list(o.location)}
                             for o in bpy.context.scene.objects], "shots": shot_list()}
+    if action == "asset_audit":
+        return asset_report(p)
+    if action == "mesh_stats":
+        return mesh_stats(p)
     functions = {"create_primitive": primitive, "create_camera": camera, "create_light": light,
                  "lighting_preset": lighting, "set_environment": environment, "set_material": set_material,
                  "toon_material": toon, "outline": outline, "keyframes": keyframes, "create_shot": shot,

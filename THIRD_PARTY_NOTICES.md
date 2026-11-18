@@ -11,3 +11,9 @@ Blender is separately installed GPL software: https://www.blender.org/about/lice
 Poly Haven and ambientCG assets: CC0; retain source records. Polyfork free mesh assets: dual licensed upstream; this downloader deliberately uses CC BY 4.0 and per-asset credit, excluding paid HD and source modules. PLATEAU converted city tiles and ABO converted assets: CC BY 4.0 with source credits and modifications. Scenario 3D collection: CC BY 4.0 AI-generated outputs; Hunyuan companion not included. Fab/Megascans: Fab EULA, account-based official download; no standalone redistribution. The code license never relicenses downloaded assets.
 
 Film still links are reference sources only. Each image, tutorial, sample movie and user-supplied character has independent rights. No screenshot scraping or wholesale asset mirroring is provided.
+
+## EL4CTEO/blender-skills workflow guidance
+
+This release adapts non-code workflow guidance from [EL4CTEO/blender-skills](https://github.com/EL4CTEO/blender-skills), commit `9e7e04a603c125a0d17447ab97112fa70a865067`, licensed under the MIT License. The upstream repository is Copyright (c) 2026 EL4CTEO. This project does not redistribute upstream scripts, templates, screenshots, videos, models or other media.
+
+The adapted ideas are limited to routing through a Blender 5.x core skill, scene naming and unit hygiene, asset QA before export, conservative platform budgets, Geometry Nodes verification, and export checklists. The implementation remains this project's own code and existing MIT license applies to it.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "blender-studio",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Local Blender MCP for cinematics, anime NPR, 2D game backgrounds, licensed assets and film composition references.",
   "author": {"name": "YZ2020CHINA"},
   "license": "MIT",

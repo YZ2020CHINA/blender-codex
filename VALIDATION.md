@@ -1,5 +1,12 @@
 # 验收记录
 
+## v1.2.0 · 2026-11-18
+
+- Upstream review: `EL4CTEO/blender-skills` main at `9e7e04a603c125a0d17447ab97112fa70a865067`; selected and attributed MIT-licensed workflow guidance only. No upstream source scripts or media bundled.
+- Added read-only evaluated mesh audit and conservative per-platform triangle budget report. Unit tests verify MCP registration, read-only annotations and platform schema.
+- Blender runtime integration and visual/topology QA not run on this machine; `blender.exe` was not found during validation. Do not treat structural report as a complete asset QA pass.
+- Versioned release artifacts are prepared locally; GitHub PR, CI and release remain pending verification.
+
 ## v1.1.0 · 2026-11-10
 
 - 19 项单元测试通过，含独立脚手架兼容、项目相对/绝对文件、同名参考不覆盖、阶段依赖与证据、只读交付检查、用户批准和后续变更撤销、交接 SHA256/坐标约定校验。

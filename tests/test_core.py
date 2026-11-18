@@ -32,6 +32,15 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(server.handle([])["error"]["code"], -32600)
         self.assertTrue(server.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "unknown"}})["result"]["isError"])
 
+    def test_asset_review_tools_are_read_only(self):
+        by_name = {tool["name"]: tool for tool in TOOLS}
+        self.assertIn("asset_audit", by_name)
+        self.assertIn("mesh_stats", by_name)
+        self.assertTrue(by_name["asset_audit"]["annotations"]["readOnlyHint"])
+        self.assertTrue(by_name["mesh_stats"]["annotations"]["readOnlyHint"])
+        self.assertEqual(by_name["mesh_stats"]["inputSchema"]["properties"]["budget"]["enum"],
+                         ["mobile", "web", "vr", "roblox", "pc", "console"])
+
     def test_stdio_real_process(self):
         config = Path(self.tmp.name) / "config.json"
         write_json(config, self.config)
