@@ -4,8 +4,9 @@
 
 - Upstream review: `EL4CTEO/blender-skills` main at `9e7e04a603c125a0d17447ab97112fa70a865067`; selected and attributed MIT-licensed workflow guidance only. No upstream source scripts or media bundled.
 - Added read-only evaluated mesh audit and conservative per-platform triangle budget report. Unit tests verify MCP registration, read-only annotations and platform schema.
-- Blender runtime integration and visual/topology QA not run on this machine; `blender.exe` was not found during validation. Do not treat structural report as a complete asset QA pass.
-- Versioned release artifacts are prepared locally; feature branch `feature/upstream-blender-skills` is pushed at commit `435ae8e`. GitHub PR, CI and release remain pending verification.
+- Blender runtime integration verified in a real Blender 5.3.0 session (Steam build at `D:\steam\steamapps\common\Blender\blender.exe`): `scripts/verify_v120_live.py` launched a background Blender process against an isolated temp `data_dir`, built the `interior` scene template, and called `asset_audit` (whole-scene and single-object filter) and `mesh_stats` (`mobile` budget, default `web` budget, and rejection of an unknown budget name). All assertions passed and the launched Blender process exited cleanly; no existing `.state`, `config.json` or `.blend` file was touched.
+- This run confirms the read-only audit executes correctly against real Blender mesh/evaluated-depsgraph data and returns the documented schema (`objects`, `mesh_objects`, `vertices`, `triangles`, `materials`, `meshes[]`, `issues[]`, `checks`, `limitations`, and `budget` for `mesh_stats`). It does **not** constitute visual, topology, UV-overlap, intersection or rig-weight QA — those remain explicitly out of scope per the tool's own `limitations` field.
+- v1.2.0 was merged to `main` (`5e3d6aa`) and pushed to `origin/main`, independently confirmed via the GitHub API (`git/ref/heads/main` SHA match). Tag `v1.2.0` and the corresponding GitHub Release (with the four `dist/` zip/sha256 assets) were created and verified the same way.
 
 ## v1.1.0 · 2026-11-10
 

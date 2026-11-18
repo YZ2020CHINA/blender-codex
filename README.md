@@ -114,12 +114,13 @@ pipeline_delivery_check 只读技术检查，不自动批准作品；pipeline_ap
 ```powershell
 python -X utf8 -m unittest discover -s tests -v
 python -X utf8 scripts/integration.py
+python -X utf8 scripts/verify_v120_live.py
 python -X utf8 scripts/verify_assets.py
 python -X utf8 scripts/package_plugin.py --zip
 git diff --check
 ```
 
-单元测试无需 Blender；integration 使用隔离状态目录启动本机 Blender，只终止自己创建的进程。素材测试会联网，按来源少量下载，需本机配置且不适合无网络 CI。GitHub CI 检查单元测试、版本一致性、源码语法与发布包内容，不声称覆盖 GPU/所有素材。
+单元测试无需 Blender；integration 与 verify_v120_live 均使用隔离的临时状态目录启动本机 Blender，只终止自己创建的进程，不读写用户现有的 `.state`、`config.json` 或任何 `.blend` 工程。verify_v120_live 专门针对 1.2.0 的 `asset_audit`/`mesh_stats` 做真实 Blender 会话校验（全场景审计、按对象过滤、mobile/web 预算、非法预算名拒绝）。素材测试会联网，按来源少量下载，需本机配置且不适合无网络 CI。GitHub CI 检查单元测试、版本一致性、源码语法与发布包内容，不声称覆盖 GPU/所有素材。
 
 ## Git 与版本管理
 
